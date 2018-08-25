@@ -10,9 +10,9 @@ public class NotesDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "notes.db";
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 1;
 
-    public NotesDbHelper(Context context) {
+    NotesDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -51,7 +51,7 @@ public class NotesDbHelper extends SQLiteOpenHelper {
     public Cursor getData() {
         SQLiteDatabase database = this.getReadableDatabase();
 
-        Cursor notesCursor = database.query(
+        return database.query(
                 NotesContract.NotesEntry.TABLE_NAME,
                 null,
                 null,
@@ -60,12 +60,6 @@ public class NotesDbHelper extends SQLiteOpenHelper {
                 null,
                 null
         );
-
-        if (notesCursor != null && notesCursor.moveToFirst()) {
-            return notesCursor;
-        }
-
-        return null;
     }
 
     public boolean deleteData() {

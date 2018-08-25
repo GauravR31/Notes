@@ -8,7 +8,5 @@ public interface MainView {
 
     void hideEmpty();
 
-    void addNote();
-
     void showNotes(Cursor cursor);
 }

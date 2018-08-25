@@ -1,15 +1,19 @@
 package com.example.android.notes.main;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.android.notes.R;
+
+import detail.DetailActivity;
 
 public class MainActivity extends AppCompatActivity implements MainView {
 
@@ -18,6 +22,23 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private FloatingActionButton addNoteFAB;
     private NotesAdapter notesAdapter;
     private MainPresenter mainPresenter;
+    private boolean insertStatus;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(MainActivity.class.getSimpleName(), "Req code = " + String.valueOf(requestCode));
+        Log.d(MainActivity.class.getSimpleName(), "Res code = " + String.valueOf(resultCode));
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                insertStatus = data.getBooleanExtra("INSERT_STATUS", false);
+                if (insertStatus) {
+                    notesAdapter.swapCursor(mainPresenter.getNotesCursor());
+                    hideEmpty();
+                }
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +47,18 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         emptyTextView = findViewById(R.id.text_view_empty);
         notesRecyclerView = findViewById(R.id.recycler_view_notes);
-        mainPresenter = new MainPresenter(this, this);
-        mainPresenter.insertNote();
-        mainPresenter.onCreate();
+        addNoteFAB = (FloatingActionButton) findViewById(R.id.fab_new_note);
 
+        addNoteFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent detailIntent = new Intent(view.getContext(), DetailActivity.class);
+                startActivityForResult(detailIntent, 1);
+            }
+        });
+
+        mainPresenter = new MainPresenter(this, this);
+        mainPresenter.onCreate();
     }
 
     @Override
@@ -45,19 +74,10 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
     @Override
-    public void addNote() {
-        addNoteFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-    }
-
-    @Override
     public void showNotes(Cursor cursor) {
         cursor = mainPresenter.getNotesCursor();
         notesAdapter = new NotesAdapter(this, cursor);
+
         if (notesAdapter.getItemCount() == 0) {
             showEmpty();
         } else {

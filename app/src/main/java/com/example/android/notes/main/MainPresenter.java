@@ -11,7 +11,7 @@ public class MainPresenter {
     private NotesDbManager notesDbManager;
     private Cursor notesCursor;
 
-    public MainPresenter(MainView mainView, Context context) {
+    MainPresenter(MainView mainView, Context context) {
         this.mainView = mainView;
         notesDbManager = new NotesDbManager(context);
     }
@@ -25,9 +25,5 @@ public class MainPresenter {
     public Cursor getNotesCursor() {
         notesCursor = notesDbManager.getCursor();
         return notesCursor;
-    }
-
-    public void insertNote() {
-        notesDbManager.insertNote();
     }
 }
