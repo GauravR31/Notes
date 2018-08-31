@@ -1,5 +1,6 @@
 package com.example.android.notes.main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -22,20 +23,25 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private FloatingActionButton addNoteFAB;
     private NotesAdapter notesAdapter;
     private MainPresenter mainPresenter;
-    private boolean insertStatus;
+    public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(MainActivity.class.getSimpleName(), "Req code = " + String.valueOf(requestCode));
-        Log.d(MainActivity.class.getSimpleName(), "Res code = " + String.valueOf(resultCode));
+        Log.d(LOG_TAG, "Req code : " + String.valueOf(requestCode));
+        Log.d(LOG_TAG, "Res code : " + String.valueOf(resultCode));
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                insertStatus = data.getBooleanExtra("INSERT_STATUS", false);
+                Bundle extras = data.getExtras();
+                boolean insertStatus = extras.getBoolean("INSERT_STATUS", false);
+                boolean updateStatus = extras.getBoolean("UPDATE_STATUS", false);
                 if (insertStatus) {
                     notesAdapter.swapCursor(mainPresenter.getNotesCursor());
                     hideEmpty();
                 }
+
+                if (updateStatus)
+                    notesAdapter.swapCursor(mainPresenter.getNotesCursor());
             }
         }
     }
@@ -57,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
             }
         });
 
-        mainPresenter = new MainPresenter(this, this);
+        mainPresenter = new MainPresenter(this);
         mainPresenter.onCreate();
     }
 
@@ -87,5 +93,10 @@ public class MainActivity extends AppCompatActivity implements MainView {
         notesRecyclerView.setLayoutManager(layoutManager);
         notesRecyclerView.setHasFixedSize(true);
         notesRecyclerView.setAdapter(notesAdapter);
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 }

@@ -10,8 +10,8 @@ public class NotesDbManager {
 
     private ContentValues contentValues;
 
-    public NotesDbManager(Context context) {
-        this.context = context;
+    public NotesDbManager(Context context1) {
+        this.context = context1;
         notesDbHelper = new NotesDbHelper(context);
     }
 
@@ -19,10 +19,22 @@ public class NotesDbManager {
         return notesDbHelper.getData();
     }
 
-    public boolean insertNote(String noteTitle, String noteContent) {
+    public boolean insertNote(String noteTitle, String noteContent, long timestamp) {
         contentValues = new ContentValues();
         contentValues.put(NotesContract.NotesEntry.COLUMN_TITLE, noteTitle);
         contentValues.put(NotesContract.NotesEntry.COLUMN_CONTENT, noteContent);
+        contentValues.put(NotesContract.NotesEntry.COLUMN_TIME, timestamp);
         return notesDbHelper.insertData(NotesContract.NotesEntry.TABLE_NAME, contentValues);
+    }
+
+    public Cursor getSingleNote(String title) {
+        return notesDbHelper.getNote(title);
+    }
+
+    public int updateNote(String id, String noteTitle, String noteContent) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(NotesContract.NotesEntry.COLUMN_TITLE, noteTitle);
+        contentValues.put(NotesContract.NotesEntry.COLUMN_CONTENT, noteContent);
+        return notesDbHelper.updateData(NotesContract.NotesEntry.TABLE_NAME, contentValues, id);
     }
 }

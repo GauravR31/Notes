@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class NotesDbHelper extends SQLiteOpenHelper {
 
@@ -41,11 +42,13 @@ public class NotesDbHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    public int updateData(String table, ContentValues contentValues, String title) {
+    public int updateData(String table, ContentValues contentValues, String id) {
         SQLiteDatabase database = this.getWritableDatabase();
-        return database.update(table, contentValues,
-                NotesContract.NotesEntry.COLUMN_TITLE + " = ",
-                new String[]{title});
+        int res = database.update(table, contentValues,
+                NotesContract.NotesEntry._ID + " = ?",
+                new String[]{id});
+        Log.d(NotesDbHelper.class.getSimpleName(), String.valueOf(res));
+        return res;
     }
 
     public Cursor getData() {
@@ -56,6 +59,21 @@ public class NotesDbHelper extends SQLiteOpenHelper {
                 null,
                 null,
                 null,
+                null,
+                null,
+                NotesContract.NotesEntry.COLUMN_TIME
+        );
+    }
+
+    public Cursor getNote(String title) {
+        SQLiteDatabase database = this.getReadableDatabase();
+
+        return database.query(
+                NotesContract.NotesEntry.TABLE_NAME,
+                new String[]{NotesContract.NotesEntry.COLUMN_TITLE,
+                        NotesContract.NotesEntry.COLUMN_CONTENT},
+                NotesContract.NotesEntry._ID + " = ? ",
+                new String[]{title},
                 null,
                 null,
                 null

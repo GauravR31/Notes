@@ -1,6 +1,5 @@
 package com.example.android.notes.main;
 
-import android.content.Context;
 import android.database.Cursor;
 
 import data.NotesDbManager;
@@ -11,9 +10,9 @@ public class MainPresenter {
     private NotesDbManager notesDbManager;
     private Cursor notesCursor;
 
-    MainPresenter(MainView mainView, Context context) {
+    MainPresenter(MainView mainView) {
         this.mainView = mainView;
-        notesDbManager = new NotesDbManager(context);
+        notesDbManager = new NotesDbManager(mainView.getContext());
     }
 
     public void onCreate() {

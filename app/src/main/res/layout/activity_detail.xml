@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="detail.DetailActivity">
 
-    <EditText
-        android:id="@+id/edit_text_note_title"
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="4dp"
         android:layout_weight="1"
-        android:background="@android:color/transparent"
-        android:hint="Title"
-        android:inputType="text"
-        android:maxLines="1"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        app:hintTextAppearance="@style/TextLabel">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/edit_text_note_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:hint="Title"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+    </android.support.design.widget.TextInputLayout>
 
     <View
         android:layout_width="match_parent"

@@ -1,6 +1,8 @@
 package com.example.android.notes.main;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -12,12 +14,13 @@ import android.widget.TextView;
 import com.example.android.notes.R;
 
 import data.NotesContract;
+import detail.DetailActivity;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHolder> {
     private Context context;
     private Cursor notesCursor;
 
-    public NotesAdapter(Context context, Cursor cursor) {
+    NotesAdapter(Context context, Cursor cursor) {
         this.context = context;
         this.notesCursor = cursor;
     }
@@ -42,9 +45,12 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
                 getColumnIndex(NotesContract.NotesEntry.COLUMN_TITLE));
         String noteContent = notesCursor.getString(notesCursor.
                 getColumnIndex(NotesContract.NotesEntry.COLUMN_CONTENT));
+        String noteId = notesCursor.getString(notesCursor.
+                getColumnIndex(NotesContract.NotesEntry._ID));
 
         holder.noteTitleTextView.setText(noteTitle);
         holder.noteContentTextView.setText(noteContent);
+        holder.noteIdTextView.setText(noteId);
     }
 
     @Override
@@ -63,13 +69,24 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
     }
 
     class NotesViewHolder extends RecyclerView.ViewHolder {
-        public final TextView noteTitleTextView;
-        public final TextView noteContentTextView;
+        final TextView noteTitleTextView;
+        final TextView noteContentTextView;
+        final TextView noteIdTextView;
 
-        public NotesViewHolder(View itemView) {
+        NotesViewHolder(View itemView) {
             super(itemView);
             noteTitleTextView = itemView.findViewById(R.id.text_view_note_title);
             noteContentTextView = itemView.findViewById(R.id.text_view_note_content);
+            noteIdTextView = itemView.findViewById(R.id.text_view_note_id);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String string = noteIdTextView.getText().toString();
+                    Intent detailIntent = new Intent(context, DetailActivity.class);
+                    detailIntent.putExtra("NOTE_TITLE", string);
+                    ((Activity) context).startActivityForResult(detailIntent, 1);
+                }
+            });
         }
     }
 }
