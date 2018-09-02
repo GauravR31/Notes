@@ -1,8 +1,5 @@
 package detail;
 
-import android.database.Cursor;
-
-import data.NotesContract;
 import data.NotesDbManager;
 
 public class DetailPresenter {
@@ -18,18 +15,14 @@ public class DetailPresenter {
     }
 
     public String[] getNoteDetails(String id) {
-        Cursor cursor = notesDbManager.getSingleNote(id);
-        if (cursor != null && cursor.moveToFirst()) {
-
-            String noteTitle = cursor.getString(cursor.getColumnIndex(NotesContract.NotesEntry.COLUMN_TITLE));
-            String noteContent = cursor.getString(cursor.getColumnIndex(NotesContract.NotesEntry.COLUMN_CONTENT));
-            return new String[]{noteTitle, noteContent};
-        } else {
-            return null;
-        }
+        return notesDbManager.getSingleNote(id);
     }
 
     public int updateNote(String id, String nTitle, String nContent) {
         return notesDbManager.updateNote(id, nTitle, nContent);
+    }
+
+    public boolean deleteNote(String noteId) {
+        return notesDbManager.deleteNote(noteId);
     }
 }

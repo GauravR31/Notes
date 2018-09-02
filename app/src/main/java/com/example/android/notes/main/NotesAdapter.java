@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -19,6 +21,15 @@ import detail.DetailActivity;
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHolder> {
     private Context context;
     private Cursor notesCursor;
+    private int position;
+
+    public int getPosition() {
+        return position;
+    }
+
+    private void setPosition(int pos) {
+        this.position = pos;
+    }
 
     NotesAdapter(Context context, Cursor cursor) {
         this.context = context;
@@ -37,7 +48,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
     }
 
     @Override
-    public void onBindViewHolder(@NonNull NotesViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final NotesViewHolder holder, final int position) {
         if (!notesCursor.moveToPosition(position))
             return;
 
@@ -51,6 +62,14 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
         holder.noteTitleTextView.setText(noteTitle);
         holder.noteContentTextView.setText(noteContent);
         holder.noteIdTextView.setText(noteId);
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                setPosition(holder.getAdapterPosition());
+                return false;
+            }
+        });
     }
 
     @Override
@@ -68,7 +87,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
             this.notifyDataSetChanged();
     }
 
-    class NotesViewHolder extends RecyclerView.ViewHolder {
+    class NotesViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         final TextView noteTitleTextView;
         final TextView noteContentTextView;
         final TextView noteIdTextView;
@@ -83,10 +102,19 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
                 public void onClick(View view) {
                     String string = noteIdTextView.getText().toString();
                     Intent detailIntent = new Intent(context, DetailActivity.class);
-                    detailIntent.putExtra("NOTE_TITLE", string);
+                    detailIntent.putExtra("NOTE_ID", string);
                     ((Activity) context).startActivityForResult(detailIntent, 1);
                 }
             });
+
+            itemView.setOnCreateContextMenuListener(this);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+            contextMenu.setHeaderTitle(noteTitleTextView.getText().toString());
+            contextMenu.add(Menu.NONE, 0, 1, R.string.delete);
+            contextMenu.add(Menu.NONE, 1, 0, R.string.share);
         }
     }
 }

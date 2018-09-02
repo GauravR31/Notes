@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class NotesDbHelper extends SQLiteOpenHelper {
 
@@ -44,11 +43,9 @@ public class NotesDbHelper extends SQLiteOpenHelper {
 
     public int updateData(String table, ContentValues contentValues, String id) {
         SQLiteDatabase database = this.getWritableDatabase();
-        int res = database.update(table, contentValues,
+        return database.update(table, contentValues,
                 NotesContract.NotesEntry._ID + " = ?",
                 new String[]{id});
-        Log.d(NotesDbHelper.class.getSimpleName(), String.valueOf(res));
-        return res;
     }
 
     public Cursor getData() {
@@ -80,7 +77,10 @@ public class NotesDbHelper extends SQLiteOpenHelper {
         );
     }
 
-    public boolean deleteData() {
-        return false;
+    public boolean deleteData(String id) {
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        return database.delete(NotesContract.NotesEntry.TABLE_NAME,
+                NotesContract.NotesEntry._ID + "=" + id, null) > 0;
     }
 }

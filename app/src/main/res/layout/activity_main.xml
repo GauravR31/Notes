@@ -6,13 +6,33 @@
     android:orientation="vertical"
     tools:context=".main.MainActivity">
 
+    <ImageView
+        android:id="@+id/image_view_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:contentDescription="@string/main_activity_empty_icon_description"
+        android:src="@drawable/sticky_note" />
+
     <TextView
         android:id="@+id/text_view_empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/image_view_empty"
         android:layout_centerInParent="true"
-        android:text="Nothing to show here!"
+        android:layout_margin="4dp"
+        android:text="@string/main_activity_empty_text"
         android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/text_view_credits"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="4dp"
+        android:text="@string/main_activity_empty_icon_credits"
+        android:textSize="12sp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_notes"

@@ -1,10 +1,15 @@
 package detail;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -17,10 +22,8 @@ public class DetailActivity extends AppCompatActivity implements DetailView {
     private DetailPresenter detailPresenter;
     public boolean insertStatus;
     public boolean updateStatus;
-    public static final String INSERT_STATUS = "INSERT_STATUS";
-    public static final String UPDATE_STATUS = "UPDATE_STATUS";
+    public boolean deleteStatus;
     private String id;
-    public static final String LOG_TAG = DetailActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +33,19 @@ public class DetailActivity extends AppCompatActivity implements DetailView {
         titleEditText = (TextInputEditText) findViewById(R.id.edit_text_note_title);
         contentEditText = (EditText) findViewById(R.id.edit_text_note_content);
         detailPresenter = new DetailPresenter(this);
-        id = getIntent().getStringExtra("NOTE_TITLE");
+        MenuItem item = findViewById(R.id.action_delete);
+
+        id = getIntent().getStringExtra("NOTE_ID");
         if (id != null) {
             editNote();
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (id == null)
+            menu.getItem(0).setEnabled(false);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -46,7 +58,47 @@ public class DetailActivity extends AppCompatActivity implements DetailView {
         } else {
             Toast.makeText(this, "Empty title or content!", Toast.LENGTH_LONG).show();
         }
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.detail_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+                final AlertDialog.Builder deleteAlert = new AlertDialog.Builder(this);
+                deleteAlert.setTitle(getString(R.string.delete_alert_title));
+                deleteAlert.setMessage(getString(R.string.delete_alert_message));
+                deleteAlert.setPositiveButton(getText(R.string.delete), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        detailPresenter.deleteNote(id);
+                        Toast.makeText(getContext(), getString(R.string.deleted_toast), Toast.LENGTH_SHORT).show();
+                        deleteStatus = true;
+                        dialogInterface.dismiss();
+                        onBackPressed();
+                    }
+                });
+
+                deleteAlert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                deleteAlert.show();
+                break;
+            default:
+                break;
+        }
+
+        return true;
     }
 
     @Override
@@ -83,8 +135,9 @@ public class DetailActivity extends AppCompatActivity implements DetailView {
         Bundle extras = new Bundle();
 
         Intent intent = new Intent();
-        extras.putBoolean(INSERT_STATUS, insertStatus);
-        extras.putBoolean(UPDATE_STATUS, updateStatus);
+        extras.putBoolean(getString(R.string.insert_key), insertStatus);
+        extras.putBoolean(getString(R.string.update_key), updateStatus);
+        extras.putBoolean(getString(R.string.delete_key), deleteStatus);
         intent.putExtras(extras);
         setResult(RESULT_OK, intent);
         super.onBackPressed();

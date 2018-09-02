@@ -25,4 +25,8 @@ public class MainPresenter {
         notesCursor = notesDbManager.getCursor();
         return notesCursor;
     }
+
+    public boolean deleteNote(String noteId) {
+        return notesDbManager.deleteNote(noteId);
+    }
 }

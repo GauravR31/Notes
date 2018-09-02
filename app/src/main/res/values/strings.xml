@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Notes</string>
+    <string name="insert_key">INSERT_STATUS</string>
+    <string name="update_key">UPDATE_STATUS</string>
+    <string name="delete_key">DELETE_STATUS</string>
+    <string name="delete_alert_title">Delete Note</string>
+    <string name="delete_alert_message">Are you sure you want to delete this note?</string>
+    <string name="deleted_toast">Note deleted</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="share">Share</string>
+    <string name="share_intent_title">Share note</string>
+    <string name="detail_activity_title_hint">Title</string>
+    <string name="detail_activity_content_hint">Note</string>
+    <string name="main_activity_empty_text">Nothing to show here!</string>
+    <string name="main_activity_empty_icon_credits">Icon made by Freepik from www.flaticon.com</string>
+    <string name="main_activity_empty_icon_description">No notes</string>
 </resources>

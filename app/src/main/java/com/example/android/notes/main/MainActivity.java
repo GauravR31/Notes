@@ -1,16 +1,20 @@
 package com.example.android.notes.main;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.notes.R;
 
@@ -18,30 +22,30 @@ import detail.DetailActivity;
 
 public class MainActivity extends AppCompatActivity implements MainView {
 
-    private TextView emptyTextView;
+    private TextView emptyTextView, creditsTextView;
     private RecyclerView notesRecyclerView;
-    private FloatingActionButton addNoteFAB;
     private NotesAdapter notesAdapter;
     private MainPresenter mainPresenter;
-    public static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private ImageView emptyImageView;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(LOG_TAG, "Req code : " + String.valueOf(requestCode));
-        Log.d(LOG_TAG, "Res code : " + String.valueOf(resultCode));
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
                 Bundle extras = data.getExtras();
-                boolean insertStatus = extras.getBoolean("INSERT_STATUS", false);
-                boolean updateStatus = extras.getBoolean("UPDATE_STATUS", false);
-                if (insertStatus) {
+                boolean insertStatus = false;
+                boolean updateStatus = false;
+                boolean deleteStatus = false;
+                if (extras != null) {
+                    insertStatus = extras.getBoolean(getString(R.string.insert_key), false);
+                    updateStatus = extras.getBoolean(getString(R.string.update_key), false);
+                    deleteStatus = extras.getBoolean(getString(R.string.delete_key), false);
+                }
+                if (insertStatus || updateStatus || deleteStatus) {
                     notesAdapter.swapCursor(mainPresenter.getNotesCursor());
                     hideEmpty();
                 }
-
-                if (updateStatus)
-                    notesAdapter.swapCursor(mainPresenter.getNotesCursor());
             }
         }
     }
@@ -53,7 +57,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         emptyTextView = findViewById(R.id.text_view_empty);
         notesRecyclerView = findViewById(R.id.recycler_view_notes);
-        addNoteFAB = (FloatingActionButton) findViewById(R.id.fab_new_note);
+        creditsTextView = (TextView) findViewById(R.id.text_view_credits);
+        emptyImageView = (ImageView) findViewById(R.id.image_view_empty);
+        FloatingActionButton addNoteFAB = (FloatingActionButton) findViewById(R.id.fab_new_note);
 
         addNoteFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,16 +71,22 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         mainPresenter = new MainPresenter(this);
         mainPresenter.onCreate();
+
+        registerForContextMenu(notesRecyclerView);
     }
 
     @Override
     public void showEmpty() {
+        creditsTextView.setVisibility(View.VISIBLE);
+        emptyImageView.setVisibility(View.VISIBLE);
         emptyTextView.setVisibility(View.VISIBLE);
         notesRecyclerView.setVisibility(View.GONE);
     }
 
     @Override
     public void hideEmpty() {
+        creditsTextView.setVisibility(View.GONE);
+        emptyImageView.setVisibility(View.GONE);
         emptyTextView.setVisibility(View.GONE);
         notesRecyclerView.setVisibility(View.VISIBLE);
     }
@@ -99,4 +111,59 @@ public class MainActivity extends AppCompatActivity implements MainView {
     public Context getContext() {
         return this;
     }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        final NotesAdapter.NotesViewHolder notesViewHolder;
+        int position = -1;
+        try {
+            position = ((NotesAdapter) notesRecyclerView.getAdapter()).getPosition();
+            notesViewHolder = (NotesAdapter.NotesViewHolder)
+                    notesRecyclerView.findViewHolderForAdapterPosition(position);
+        } catch (Exception e) {
+            return super.onContextItemSelected(item);
+        }
+
+        switch (item.getItemId()) {
+            case 0:
+                final AlertDialog.Builder deleteAlert = new AlertDialog.Builder(this);
+                deleteAlert.setTitle(getString(R.string.delete_alert_title));
+                deleteAlert.setMessage(getString(R.string.delete_alert_message));
+                deleteAlert.setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String id = notesViewHolder.noteIdTextView.getText().toString();
+                        mainPresenter.deleteNote(id);
+                        Toast.makeText(getContext(), getString(R.string.deleted_toast), Toast.LENGTH_SHORT).show();
+                        notesAdapter.swapCursor(mainPresenter.getNotesCursor());
+                        if (notesAdapter.getItemCount() == 0)
+                            showEmpty();
+                        dialogInterface.dismiss();
+                    }
+                });
+
+                deleteAlert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                deleteAlert.show();
+
+                return true;
+            case 1:
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, notesViewHolder.noteTitleTextView.getText().toString());
+                shareIntent.putExtra(Intent.EXTRA_TEXT, notesViewHolder.noteContentTextView.getText().toString());
+
+                startActivity(Intent.createChooser(shareIntent, getString(R.string.share_intent_title)));
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
 }
