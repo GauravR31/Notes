@@ -1,32 +1,31 @@
 package com.example.android.notes.main;
 
-import android.database.Cursor;
+import java.util.List;
 
+import data.Note;
 import data.NotesDbManager;
 
 public class MainPresenter {
 
     private MainView mainView;
     private NotesDbManager notesDbManager;
-    private Cursor notesCursor;
 
-    MainPresenter(MainView mainView) {
+    MainPresenter(MainView mainView, NotesDbManager dbManager) {
         this.mainView = mainView;
-        notesDbManager = new NotesDbManager(mainView.getContext());
+        this.notesDbManager = dbManager;
     }
 
     public void onCreate() {
         if (mainView != null) {
-            mainView.showNotes(notesCursor);
+            mainView.showNotes(getNoteList());
         }
     }
 
-    public Cursor getNotesCursor() {
-        notesCursor = notesDbManager.getCursor();
-        return notesCursor;
+    public List<Note> getNoteList() {
+        return notesDbManager.getNoteList();
     }
 
-    public boolean deleteNote(String noteId) {
-        return notesDbManager.deleteNote(noteId);
+    public void deleteNote(String noteId) {
+        notesDbManager.deleteNote(noteId);
     }
 }

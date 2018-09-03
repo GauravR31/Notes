@@ -4,17 +4,31 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NotesDbManager {
-    private Context context;
     private NotesDbHelper notesDbHelper;
 
     public NotesDbManager(Context context1) {
-        this.context = context1;
-        notesDbHelper = new NotesDbHelper(context);
+        notesDbHelper = new NotesDbHelper(context1);
     }
 
-    public Cursor getCursor() {
-        return notesDbHelper.getData();
+    public List<Note> getNoteList() {
+        Cursor cursor = notesDbHelper.getData();
+        List<Note> noteList = new ArrayList<>();
+        if (cursor != null && cursor.moveToFirst()) {
+            while (cursor.moveToNext()) {
+                String noteId = cursor.getString(cursor.getColumnIndex(NotesContract.NotesEntry._ID));
+                String noteTitle = cursor.getString(cursor.getColumnIndex(NotesContract.NotesEntry.COLUMN_TITLE));
+                String noteContent = cursor.getString(cursor.getColumnIndex(NotesContract.NotesEntry.COLUMN_CONTENT));
+
+                Note note = new Note(noteId, noteTitle, noteContent);
+                noteList.add(note);
+            }
+        }
+
+        return noteList;
     }
 
     public boolean insertNote(String noteTitle, String noteContent, long timestamp) {

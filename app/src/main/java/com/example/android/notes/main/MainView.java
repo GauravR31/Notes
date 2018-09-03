@@ -1,7 +1,10 @@
 package com.example.android.notes.main;
 
 import android.content.Context;
-import android.database.Cursor;
+
+import java.util.List;
+
+import data.Note;
 
 public interface MainView {
 
@@ -9,7 +12,7 @@ public interface MainView {
 
     void hideEmpty();
 
-    void showNotes(Cursor cursor);
+    void showNotes(List<Note> noteList);
 
     Context getContext();
 }

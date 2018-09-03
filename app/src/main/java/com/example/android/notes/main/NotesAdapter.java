@@ -3,7 +3,6 @@ package com.example.android.notes.main;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
@@ -15,12 +14,14 @@ import android.widget.TextView;
 
 import com.example.android.notes.R;
 
-import data.NotesContract;
+import java.util.List;
+
+import data.Note;
 import detail.DetailActivity;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHolder> {
     private Context context;
-    private Cursor notesCursor;
+    private List<Note> noteList;
     private int position;
 
     public int getPosition() {
@@ -31,9 +32,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
         this.position = pos;
     }
 
-    NotesAdapter(Context context, Cursor cursor) {
+    NotesAdapter(Context context, List<Note> list) {
         this.context = context;
-        this.notesCursor = cursor;
+        this.noteList = list;
     }
 
     @NonNull
@@ -49,15 +50,13 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
 
     @Override
     public void onBindViewHolder(@NonNull final NotesViewHolder holder, final int position) {
-        if (!notesCursor.moveToPosition(position))
+        if (noteList.get(position) == null)
             return;
 
-        String noteTitle = notesCursor.getString(notesCursor.
-                getColumnIndex(NotesContract.NotesEntry.COLUMN_TITLE));
-        String noteContent = notesCursor.getString(notesCursor.
-                getColumnIndex(NotesContract.NotesEntry.COLUMN_CONTENT));
-        String noteId = notesCursor.getString(notesCursor.
-                getColumnIndex(NotesContract.NotesEntry._ID));
+        Note note = noteList.get(position);
+        String noteTitle = note.getNoteTitle();
+        String noteContent = note.getNoteContent();
+        String noteId = note.getNoteId();
 
         holder.noteTitleTextView.setText(noteTitle);
         holder.noteContentTextView.setText(noteContent);
@@ -74,16 +73,16 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
 
     @Override
     public int getItemCount() {
-        return notesCursor.getCount();
+        return noteList.size();
     }
 
-    public void swapCursor(Cursor newCursor) {
-        if (notesCursor != null)
-            notesCursor.close();
+    public void swapCursor(List<Note> newList) {
+        if (noteList != null)
+            noteList.clear();
 
-        notesCursor = newCursor;
+        noteList = newList;
 
-        if (newCursor != null)
+        if (newList != null)
             this.notifyDataSetChanged();
     }
 

@@ -3,7 +3,6 @@ package com.example.android.notes.main;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -18,6 +17,10 @@ import android.widget.Toast;
 
 import com.example.android.notes.R;
 
+import java.util.List;
+
+import data.Note;
+import data.NotesDbManager;
 import detail.DetailActivity;
 
 public class MainActivity extends AppCompatActivity implements MainView {
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
                     deleteStatus = extras.getBoolean(getString(R.string.delete_key), false);
                 }
                 if (insertStatus || updateStatus || deleteStatus) {
-                    notesAdapter.swapCursor(mainPresenter.getNotesCursor());
+                    notesAdapter.swapCursor(mainPresenter.getNoteList());
                     hideEmpty();
                 }
             }
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
         notesRecyclerView = findViewById(R.id.recycler_view_notes);
         creditsTextView = (TextView) findViewById(R.id.text_view_credits);
         emptyImageView = (ImageView) findViewById(R.id.image_view_empty);
+        NotesDbManager notesDbManager = new NotesDbManager(this);
         FloatingActionButton addNoteFAB = (FloatingActionButton) findViewById(R.id.fab_new_note);
 
         addNoteFAB.setOnClickListener(new View.OnClickListener() {
@@ -69,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
             }
         });
 
-        mainPresenter = new MainPresenter(this);
+        mainPresenter = new MainPresenter(this, notesDbManager);
         mainPresenter.onCreate();
 
         registerForContextMenu(notesRecyclerView);
@@ -92,9 +96,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
     @Override
-    public void showNotes(Cursor cursor) {
-        cursor = mainPresenter.getNotesCursor();
-        notesAdapter = new NotesAdapter(this, cursor);
+    public void showNotes(List<Note> noteList) {
+        noteList = mainPresenter.getNoteList();
+        notesAdapter = new NotesAdapter(this, noteList);
 
         if (notesAdapter.getItemCount() == 0) {
             showEmpty();
@@ -115,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         final NotesAdapter.NotesViewHolder notesViewHolder;
-        int position = -1;
+        int position;
         try {
             position = ((NotesAdapter) notesRecyclerView.getAdapter()).getPosition();
             notesViewHolder = (NotesAdapter.NotesViewHolder)
@@ -135,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
                         String id = notesViewHolder.noteIdTextView.getText().toString();
                         mainPresenter.deleteNote(id);
                         Toast.makeText(getContext(), getString(R.string.deleted_toast), Toast.LENGTH_SHORT).show();
-                        notesAdapter.swapCursor(mainPresenter.getNotesCursor());
+                        notesAdapter.swapCursor(mainPresenter.getNoteList());
                         if (notesAdapter.getItemCount() == 0)
                             showEmpty();
                         dialogInterface.dismiss();

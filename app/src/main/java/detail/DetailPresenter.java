@@ -6,8 +6,8 @@ public class DetailPresenter {
 
     private NotesDbManager notesDbManager;
 
-    DetailPresenter(DetailView detailView1) {
-        notesDbManager = new NotesDbManager(detailView1.getContext());
+    DetailPresenter(NotesDbManager dbManager) {
+        notesDbManager = dbManager;
     }
 
     public boolean insertNote(String title, String content, long time) {

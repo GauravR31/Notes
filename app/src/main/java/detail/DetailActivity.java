@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import com.example.android.notes.R;
 
+import data.NotesDbManager;
+
 public class DetailActivity extends AppCompatActivity implements DetailView {
 
     private EditText titleEditText;
@@ -32,9 +34,8 @@ public class DetailActivity extends AppCompatActivity implements DetailView {
 
         titleEditText = (TextInputEditText) findViewById(R.id.edit_text_note_title);
         contentEditText = (EditText) findViewById(R.id.edit_text_note_content);
-        detailPresenter = new DetailPresenter(this);
-        MenuItem item = findViewById(R.id.action_delete);
-
+        NotesDbManager notesDbManager = new NotesDbManager(this);
+        detailPresenter = new DetailPresenter(notesDbManager);
         id = getIntent().getStringExtra("NOTE_ID");
         if (id != null) {
             editNote();
